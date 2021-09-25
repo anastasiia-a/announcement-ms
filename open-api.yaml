@@ -1,0 +1,78 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Announcement MicroService
+  description: A small serverless application (MicroService) which exposes JSON formatted REST APIs which allow for storing and retrieving announcements.
+servers:
+  - url: ...
+paths:
+  /v1/announcements:
+    get:
+      summary: Returns all announcements with paggination support
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Allows to create a new announcement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Announcement"
+      responses:
+        201:
+          description: Created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Announcement:
+      type: object
+      required:
+        - title
+        - date
+      properties:
+        title:
+          type: string
+          example: "Free english classes"
+        description:
+          type: string
+          example: "Free conversational English classes will start at Language Room, Central Library."
+        date:
+          type: string
+          format: date-time
+          example: "2022-02-12 15:00"
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          default: 400
+        message:
+          type: string
+          default: "Bad Request"
