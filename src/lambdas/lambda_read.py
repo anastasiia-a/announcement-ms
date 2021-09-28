@@ -20,19 +20,20 @@ def lambda_handler(event, context):
         client = boto3.resource("dynamodb")
         table = client.Table(TABLE_NAME)
         logging.info(f">[INFO]- Successfully connected to the table '{TABLE_NAME}'")
-        announcements = table.scan()["Items"]
+        table_scan = table.scan()
+        announcements = table_scan["Items"]
 
-        all_announcements = []
-        for announcement in announcements:
-            all_announcements.append(
-                {
-                    "title": announcement.get("title"),
-                    "description": announcement.get("description"),
-                    "date": announcement.get("date"),
-                }
+        while "LastEvaluatedKey" in table_scan:
+            table_scan = table.scan(
+                ExclusiveStartKey=table_scan.get("LastEvaluatedKey")
             )
+            announcements.extend(table_scan["Items"])
+
         logging.info(">[INFO]- Successfully read all announcements")
-        return {"statusCode": 200, "body": json.dumps(all_announcements)}
+        return {
+            "statusCode": 200,
+            "body": json.dumps(announcements, ensure_ascii=False, default=str),
+        }
 
     except Exception as exception:
         logging.error(f">[ERROR]- Exception {exception}")

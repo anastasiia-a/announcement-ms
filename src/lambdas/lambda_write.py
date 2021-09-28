@@ -15,10 +15,13 @@ logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 
 
 def lambda_handler(event, context) -> json:
-    """Create a new item in the dynamodb table."""
+    """
+    Create a new item in the dynamodb table.
+    Allow creating duplicates.
+    """
 
     try:
-        body = event.get("body", {})
+        body = event.get("body", "{}")
         body = json.loads(body, strict=False)
         logging.info(f">[INFO]'- Call with body: {body}")
 
@@ -46,18 +49,14 @@ def lambda_handler(event, context) -> json:
             "date": date,
         }
         table.put_item(Item=new_item)
-        item_without_uuid = {
-            "title": new_item["title"],
-            "description": new_item["description"],
-            "date": new_item["date"],
-        }
         logging.info(
             f">[INFO] - New item with uuid={new_item['uuid']} "
             f"in table '{TABLE_NAME}' created successful."
         )
+        del new_item["uuid"]
         return {
             "statusCode": 201,
-            "body": json.dumps(f"New item created successfully\n{item_without_uuid}"),
+            "body": json.dumps(f"{new_item}"),
         }
 
     except Exception as exception:

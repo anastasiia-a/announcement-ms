@@ -7,7 +7,7 @@ aws cloudformation deploy --template-file output_template.yaml \
     --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM
 
 api_endpoint=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" \
-    --query "Stacks[].Outputs[? OutputKey == 'ApiUrl'].OutputValue" \
+    --query "Stacks[].Outputs[? OutputKey == 'ApiURL'].OutputValue" \
     --output text)
 
 echo "Successful deployed. The API endpoint: ${api_endpoint}"
