@@ -9,6 +9,7 @@ Parameters:
   Stage:
     Type: String
     Default: dev
+
 Resources:
   RestAPI:
     Type: AWS::Serverless::Api
