@@ -3,27 +3,38 @@ info:
   version: 1.0.0
   title: Announcement MicroService
   description: A small serverless application (MicroService) which exposes JSON formatted REST APIs which allow for storing and retrieving announcements.
-servers:
-  - url: ...
+
 paths:
   /v1/announcements:
     get:
-      summary: Returns all announcements with paggination support
+      summary: Returns list of all announcements
       responses:
         200:
-          description: OK
+          description: Successful data reading from the table
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Announcement"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ReadFunction.Arn}/invocations
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+        responses:
+          default:
+            statusCode: "200"
         default:
-          description: Error
+          description: An Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                message:
+                  type: string
+
     post:
       summary: Allows to create a new announcement
       requestBody:
@@ -38,12 +49,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Announcement"
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WriteFunction.Arn}/invocations
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+        responses:
+          default:
+            statusCode: "201"
         default:
-          description: Error
+          description: An Error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                message:
+                  type: string
 
 components:
   schemas:
@@ -63,16 +85,3 @@ components:
           type: string
           format: date-time
           example: "2022-02-12 15:00"
-
-    Error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          default: 400
-        message:
-          type: string
-          default: "Bad Request"
