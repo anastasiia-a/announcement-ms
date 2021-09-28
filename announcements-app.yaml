@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Announcement MicroService
+
+Parameters:
+  DynamoDBTableName:
+    Type: String
+    Default: announcements
+  Stage:
+    Type: String
+    Default: dev
+Resources:
+  RestAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: RestAPI for the Announcment MicroService
+      StageName:
+        Ref: Stage
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: open-api.yaml
+
+  ReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: read-announcements
+      Runtime: python3.9
+      CodeUri: src/lambdas/
+      Handler: lambda_read.lambda_handler
+      Events:
+        GET:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: RestAPI
+            Path: /v1/announcements
+            Method: GET
+      Policies:
+        DynamoDBReadPolicy:
+          TableName:
+            Ref: AnnouncementsTable
+      Environment:
+        Variables:
+          TABLE:
+            Ref: DynamoDBTableName
+
+
+  WriteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: create-announcements
+      Runtime: python3.9
+      CodeUri: src/lambdas/
+      Handler: lambda_write.lambda_handler
+      Events:
+        POST:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: RestAPI
+            Path: /v1/announcements
+            Method: POST
+      Policies:
+        DynamoDBCrudPolicy:
+          TableName:
+            Ref: AnnouncementsTable
+      Environment:
+        Variables:
+          TABLE:
+            Ref: DynamoDBTableName
+
+  AnnouncementsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName:
+        Ref: DynamoDBTableName
+      PrimaryKey:
+        Name: uuid
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+Outputs:
+    ApiURL:
+      Description: "API endpoint URL for ${Stage} environment"
+      Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/resource/"
