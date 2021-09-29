@@ -44,6 +44,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Announcement"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Unauthorized
+        403:
+          description: No access
+          content:
+            application/json:
+              schema:
+                type: string
+                example: User is not authorized to access this resource with an explicit deny
+
       x-amazon-apigateway-integration:
         uri:
           Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WriteFunction.Arn}/invocations
@@ -59,8 +74,7 @@ paths:
           content:
             application/json:
               schema:
-                message:
-                  type: string
+                type: string
 
 components:
   schemas:
