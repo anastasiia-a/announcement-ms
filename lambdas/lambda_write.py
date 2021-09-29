@@ -6,13 +6,13 @@ import uuid
 import boto3
 
 TABLE_NAME = os.environ["TABLE"]
-MISSING_PARAMETERS_MESSAGE = "Some mandatory parameters are missing (title, date)!"
+MISSING_PARAMETERS_MESSAGE = "Some mandatory body parameters are missing (title, date)!"
 
 root = logging.getLogger()
 if root.handlers:
     for handler in root.handlers:
         root.removeHandler(handler)
-logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
 
 def lambda_handler(event, context) -> json:
@@ -22,8 +22,13 @@ def lambda_handler(event, context) -> json:
     """
 
     try:
-        body = event.get("body", "{}")
-        body = json.loads(body, strict=False)
+        body = event.get("body")
+
+        if not body:
+            logging.error(f">[ERROR]'- {MISSING_PARAMETERS_MESSAGE}")
+            return {"statusCode": 400, "body": json.dumps(MISSING_PARAMETERS_MESSAGE)}
+
+        body = json.loads(body)
         logging.info(f">[INFO]'- Call with body: {body}")
 
         title = body.get("title")

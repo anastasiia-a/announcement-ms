@@ -10,4 +10,4 @@ api_endpoint=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" \
     --query "Stacks[].Outputs[? OutputKey == 'ApiURL'].OutputValue" \
     --output text)
 
-echo "Successful deployed. The API endpoint: ${api_endpoint}"
+echo "Application successfully deployed. The API endpoint: ${api_endpoint}"

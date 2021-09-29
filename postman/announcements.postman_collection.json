@@ -26,7 +26,7 @@
 							"});",
 							"",
 							"pm.test(\"Check the response body\", function() {",
-							"    pm.response.to.have.body('\"Some mandatory parameters are missing (title, date)!\"');",
+							"    pm.response.to.have.body('\"Some mandatory body parameters are missing (title, date)!\"');",
 							"});"
 						],
 						"type": "text/javascript"
@@ -35,10 +35,16 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "allow",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -93,7 +99,7 @@
 							"});",
 							"",
 							"pm.test(\"Check the response body\", function() {",
-							"    pm.response.to.have.body('\"Some mandatory parameters are missing (title, date)!\"');",
+							"    pm.response.to.have.body('\"Some mandatory body parameters are missing (title, date)!\"');",
 							"});"
 						],
 						"type": "text/javascript"
@@ -102,7 +108,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "allow",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"title\": \"{{title}}\"\n}",
@@ -148,7 +160,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "allow",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"title\": \"{{title}}\", \n    \"description\": \"{{description}}\",\n    \"date\": \"{{date}}\"\n}",
@@ -158,6 +176,84 @@
 						}
 					}
 				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_announcements_without_token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The status code is 401\", function() {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"Check the response body\", function() {",
+							"    pm.response.to.have.body('{\"message\":\"Unauthorized\"}');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_announcements_with_incorrect_token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"The status code is 403\", function() {",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"pm.test(\"Check the response body\", function() {",
+							"    pm.response.to.have.body('{\"Message\":\"User is not authorized to access this resource with an explicit deny\"}');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "all",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "{{url}}",
 					"host": [
