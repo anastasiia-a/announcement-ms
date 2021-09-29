@@ -22,13 +22,26 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: open-api.yaml
+      Auth:
+        DefaultAuthorizer: LambdaTokenAuth
+        Authorizers:
+          LambdaTokenAuth:
+            FunctionArn: !GetAtt AuthFunction.Arn
+
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: auth-function
+      CodeUri: lambdas/
+      Handler: lambda_auth.lambda_handler
+      Runtime: python3.9
 
   ReadFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: read-announcements
       Runtime: python3.9
-      CodeUri: src/lambdas/
+      CodeUri: lambdas/
       Handler: lambda_read.lambda_handler
       Events:
         GET:
@@ -53,7 +66,7 @@ Resources:
     Properties:
       FunctionName: create-announcements
       Runtime: python3.9
-      CodeUri: src/lambdas/
+      CodeUri: lambdas/
       Handler: lambda_write.lambda_handler
       Events:
         POST:

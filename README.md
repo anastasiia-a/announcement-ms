@@ -21,17 +21,21 @@ A small serverless application (MicroService) which exposes JSON formatted REST 
 ```
 git clone https://github.com/anastasiia-a/announcement-ms
 ```
-3. Export the needed enviroment variables
+3. Export needed environment variables
+```
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_DEFAULT_REGION=
+export S3_BUCKET=
+export STACK_NAME=
+```
 
-|№|command|description|
-|-|-|-|
-|1|`export AWS_ACCESS_KEY_ID=`|access for AWS |
-|2|`export AWS_SECRET_ACCESS_KEY=`|access for AWS|
-|3|`export AWS_DEFAULT_REGION=`|access for AWS|
-|4|`export S3_BUCKET=`|for 'deploy.sh'|
-|5|`export STACK_NAME=`|for 'deploy.sh'|
-
-4. Run the following command
+4. Run the following command for deploying in AWS
 ```
 ./deploy.sh
+```
+5. Command to deleting a stack
+```
+aws cloudformation delete-stack --stack-name ${STACK_NAME}
+
 ```

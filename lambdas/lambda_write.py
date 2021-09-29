@@ -6,6 +6,7 @@ import uuid
 import boto3
 
 TABLE_NAME = os.environ["TABLE"]
+MISSING_PARAMETERS_MESSAGE = "Some mandatory parameters are missing (title, date)!"
 
 root = logging.getLogger()
 if root.handlers:
@@ -30,15 +31,8 @@ def lambda_handler(event, context) -> json:
         description = body.get("description", "")
 
         if not all([title, date]):
-            logging.error(
-                ">[ERROR]'- Some mandatory parameters are missing (title, date)!"
-            )
-            return {
-                "statusCode": 400,
-                "body": json.dumps(
-                    "Some mandatory parameters are missing (title, date)!"
-                ),
-            }
+            logging.error(f">[ERROR]'- {MISSING_PARAMETERS_MESSAGE}")
+            return {"statusCode": 400, "body": json.dumps(MISSING_PARAMETERS_MESSAGE)}
 
         client = boto3.resource("dynamodb")
         table = client.Table(TABLE_NAME)
@@ -53,11 +47,8 @@ def lambda_handler(event, context) -> json:
             f">[INFO] - New item with uuid={new_item['uuid']} "
             f"in table '{TABLE_NAME}' created successful."
         )
-        del new_item["uuid"]
-        return {
-            "statusCode": 201,
-            "body": json.dumps(f"{new_item}"),
-        }
+
+        return {"statusCode": 201, "body": json.dumps(f"{new_item}")}
 
     except Exception as exception:
         logging.error(f">[ERROR] - Exception {exception}")

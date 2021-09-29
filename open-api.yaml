@@ -27,13 +27,6 @@ paths:
         responses:
           default:
             statusCode: "200"
-        default:
-          description: An Error
-          content:
-            application/json:
-              schema:
-                message:
-                  type: string
 
     post:
       summary: Allows to create a new announcement
