@@ -1,4 +1,12 @@
+MOCK_TOKEN = "allow"
+PRINCIPAL_ID = "user"
+
+
 def generate_policy_document(effect, method_arn):
+    """
+    The following policy statement gives the user permission to call
+    method along the path of 'method_arn' resource.
+    """
     if all([effect, method_arn]):
         policy_document = {
             "Version": "2012-10-17",
@@ -21,11 +29,14 @@ def generate_auth_response(principal_id, effect, method_arn):
 
 
 def lambda_handler(event, context):
+    """
+    Mock token authorization.
+    Allows a request if there is a MOCK_TOKEN in the header.
+    """
     token = event.get("authorizationToken")
     method_arn = event.get("methodArn")
-    http_method = event.get("httpMethod")
 
-    if token == "allow" or http_method == "GET":
-        return generate_auth_response("user", "Allow", method_arn)
+    if token == MOCK_TOKEN:
+        return generate_auth_response(PRINCIPAL_ID, "Allow", method_arn)
     else:
-        return generate_auth_response("user", "Deny", method_arn)
+        return generate_auth_response(PRINCIPAL_ID, "Deny", method_arn)

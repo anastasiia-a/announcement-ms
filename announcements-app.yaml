@@ -51,6 +51,8 @@ Resources:
               Ref: RestAPI
             Path: /v1/announcements
             Method: GET
+            Auth:
+              Authorizer: NONE
       Policies:
         DynamoDBReadPolicy:
           TableName:

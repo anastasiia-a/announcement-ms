@@ -27,6 +27,8 @@ paths:
         responses:
           default:
             statusCode: "200"
+      security:
+        - NONE: []
 
     post:
       summary: Allows to create a new announcement
