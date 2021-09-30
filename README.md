@@ -43,7 +43,7 @@ Application successfully deployed. The API endpoint: {api_endpoint}
 6. Test the app<br>
 - <b>GET</b> request (without auth)
 ```
-curl --request GET --url {api_endpoint}
+curl --request GET --url {api_endpoint}/v1/announcements
 ``` 
 - <b>POST</b> request (right now there is a mock auth)<br>
 
@@ -52,7 +52,7 @@ curl --request GET --url {api_endpoint}
   * date (type: string, example: "2021-10-01 13:00")
 ```
 curl --request POST \
-  --url {api_endpoint} \
+  --url {api_endpoint}/v1/announcements \
   --header 'Authorization: allow' \
   --data '{
         "title" : "English classes",

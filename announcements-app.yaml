@@ -102,4 +102,4 @@ Resources:
 Outputs:
     ApiURL:
       Description: "API endpoint URL for ${Stage} environment"
-      Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/resource/"
+      Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"

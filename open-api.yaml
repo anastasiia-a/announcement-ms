@@ -44,6 +44,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Announcement"
+        400:
+          description: No mandatory body parameters
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Some mandatory body parameters are missing (title, date)!
         401:
           description: Unauthorized
           content:
