@@ -1,60 +1,38 @@
 import json
 import logging
-import os
-import uuid
 
-import boto3
+from aws_lambda_powertools.utilities.parser import ValidationError
+from exceptions import BlankRequestBody
+from helpers import (
+    INCORRECT_PARAMETERS_MESSAGE,
+    MISSING_PARAMETERS_MESSAGE,
+    create_new_table_item,
+)
 
-TABLE_NAME = os.environ["TABLE"]
-MISSING_PARAMETERS_MESSAGE = "Some mandatory body parameters are missing (title, date)!"
-
-root = logging.getLogger()
-if root.handlers:
-    for handler in root.handlers:
-        root.removeHandler(handler)
-logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
+logging.getLogger()
+logging.basicConfig(
+    format="%(asctime)s >[%(levelname)s] %(message)s", level=logging.INFO
+)
 
 
-def lambda_handler(event, context) -> json:
+def lambda_handler(event, context):
     """
     Create a new item in the dynamodb table.
     Allow creating duplicates.
     """
 
     try:
-        body = event.get("body")
+        created_item = create_new_table_item(event)
+        return {"statusCode": 201, "body": json.dumps(f"{created_item}")}
 
-        if not body:
-            logging.error(f">[ERROR]'- {MISSING_PARAMETERS_MESSAGE}")
-            return {"statusCode": 400, "body": json.dumps(MISSING_PARAMETERS_MESSAGE)}
+    except BlankRequestBody as exception:
+        logging.error(f"{exception}")
+        return {"statusCode": 400, "body": json.dumps(MISSING_PARAMETERS_MESSAGE)}
 
-        body = json.loads(body)
-        logging.info(f">[INFO]'- Call with body: {body}")
-
-        title = body.get("title")
-        date = body.get("date")
-        description = body.get("description", "")
-
-        if not all([title, date]):
-            logging.error(f">[ERROR]'- {MISSING_PARAMETERS_MESSAGE}")
-            return {"statusCode": 400, "body": json.dumps(MISSING_PARAMETERS_MESSAGE)}
-
-        client = boto3.resource("dynamodb")
-        table = client.Table(TABLE_NAME)
-        new_item = {
-            "uuid": f"{uuid.uuid4()}",
-            "title": title,
-            "description": description,
-            "date": date,
-        }
-        table.put_item(Item=new_item)
-        logging.info(
-            f">[INFO] - New item with uuid={new_item['uuid']} "
-            f"in table '{TABLE_NAME}' created successful."
-        )
-
-        return {"statusCode": 201, "body": json.dumps(f"{new_item}")}
+    except ValidationError as exception:
+        logging.error(f"{exception}")
+        return {"statusCode": 400, "body": json.dumps(INCORRECT_PARAMETERS_MESSAGE)}
 
     except Exception as exception:
-        logging.error(f">[ERROR] - Exception {exception}")
+        logging.error(f"{exception}")
         return {"statusCode": 500, "body": json.dumps("Internal server error")}

@@ -1,3 +1,7 @@
+virtualvenv venv && source venv/bin/activate
+pip install -r requirements.txt
+cp -rp venv/lib/python*/site-packages/ lambdas/
+
 aws s3 mb s3://${S3_BUCKET}
 
 aws cloudformation package --template-file announcements-app.yaml \
