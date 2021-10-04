@@ -9,6 +9,13 @@ Parameters:
   Stage:
     Type: String
     Default: dev
+  DomainName:
+    Type: String
+    Default: announcements-domain
+  RedirectURL:
+    Type: String
+    Default: https://example.com/callback
+
 
 Resources:
   RestAPI:
@@ -23,18 +30,47 @@ Resources:
           Parameters:
             Location: open-api.yaml
       Auth:
-        DefaultAuthorizer: LambdaTokenAuth
+        DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
-          LambdaTokenAuth:
-            FunctionArn: !GetAtt AuthFunction.Arn
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
 
-  AuthFunction:
-    Type: AWS::Serverless::Function
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
     Properties:
-      FunctionName: auth-function
-      CodeUri: lambdas/
-      Handler: lambda_auth.lambda_handler
-      Runtime: python3.9
+      UserPoolName: announcements-user-pool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: user-pool-client
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - !Ref RedirectURL
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+      SupportedIdentityProviders:
+        - COGNITO
+
+  CognitoDomainName:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref DomainName
+      UserPoolId: !Ref CognitoUserPool
 
   ReadFunction:
     Type: AWS::Serverless::Function
@@ -101,5 +137,11 @@ Resources:
 
 Outputs:
     ApiURL:
-      Description: "API endpoint URL for ${Stage} environment"
+      Description: "API endpoint for ${Stage} environment"
       Value: !Sub "https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+    CognitoSignUpURL:
+      Description: "API endpoint for Cognito Sign Up"
+      Value: !Sub "https://${DomainName}.auth.${AWS::Region}.amazoncognito.com/signup?client_id=${CognitoUserPoolClient}&response_type=token&scope=email+openid&redirect_uri=${RedirectURL}"
+    CognitoLoginUpURL:
+      Description: "API endpoint for Cognito Log In"
+      Value: !Sub "https://${DomainName}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${CognitoUserPoolClient}&response_type=token&scope=email+openid&redirect_uri=${RedirectURL}"

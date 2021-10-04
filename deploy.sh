@@ -14,4 +14,14 @@ api_endpoint=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" \
     --query "Stacks[].Outputs[? OutputKey == 'ApiURL'].OutputValue" \
     --output text)
 
+signup_url=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" \
+    --query "Stacks[].Outputs[? OutputKey == 'CognitoSignUpURL'].OutputValue" \
+    --output text)
+
+login_url=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" \
+    --query "Stacks[].Outputs[? OutputKey == 'CognitoLoginUpURL'].OutputValue" \
+    --output text)
+
 echo "Application successfully deployed. The API endpoint: ${api_endpoint}"
+echo "URL for Cognito Sign Up: ${signup_url}"
+echo "URL for Cognito Log In: ${login_url}"

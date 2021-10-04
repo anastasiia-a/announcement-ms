@@ -15,15 +15,15 @@ A small serverless application (MicroService) which exposes JSON formatted REST 
 
 
 ## How to deploy
-1. Install aws cli
+#### 1. Install aws cli
 ```
 https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
 ```
-2. Clone the repository
+#### 2. Clone the repository
 ```
 git clone https://github.com/anastasiia-a/announcement-ms
 ```
-3. Export needed environment variables
+#### 3. Export needed environment variables
 ```
 export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
@@ -32,20 +32,31 @@ export S3_BUCKET=
 export STACK_NAME=
 ```
 
-4. Run the following command for deploying in AWS
+#### 4. Run the following command for deploying in AWS
 ```
 ./deploy.sh
 ```
-5. After successful deployment you will get the output
+#### 5. After successful deployment, you will receive the output
 ```
 Application successfully deployed. The API endpoint: {api_endpoint}
+URL for Cognito Sign Up: {signup_url}
+URL for Cognito Log In: {login_url}
 ``` 
-6. Test the app<br>
+#### 6. Sign Up<br>
+You need to enter the correct email to which you will receive a verification code.<br>
+<img src="./docs/images/sign_up.png" width=300 height=370> <img src="./docs/images/confirmation.png" width=300 height=370>
+
+#### 7. Get token<br>
+After successfully signing up or logging in, you will receive the following structure:
+```
+https://example.com/callback#id_token={ID_TOKEN}&access_token={ACCESS_TOKEN}&expires_in=3600&token_type=Bearer
+``` 
+#### 8. Test the app<br>
 - <b>GET</b> request (without auth)
 ```
 curl --request GET --url {api_endpoint}/v1/announcements
 ``` 
-- <b>POST</b> request (right now there is a mock auth)<br>
+- <b>POST</b> request<br>
 
   To create announcement in the body you need to send 2 mandatory parameters:
   * title (type: string)
@@ -53,7 +64,7 @@ curl --request GET --url {api_endpoint}/v1/announcements
 ```
 curl --request POST \
   --url {api_endpoint}/v1/announcements \
-  --header 'Authorization: allow' \
+  --header 'Authorization: {ID_TOKEN}' \
   --data '{
         "title" : "English classes",
         "description": "Free english classes",
@@ -63,7 +74,7 @@ curl --request POST \
    It is also possible to test APIs with Postman Collections
 (from `postman` folder)
 
-7. Command to delete a stack from AWS
+#### 9. Command to delete a stack from AWS
 ```
 aws cloudformation delete-stack --stack-name ${STACK_NAME}
 ```
