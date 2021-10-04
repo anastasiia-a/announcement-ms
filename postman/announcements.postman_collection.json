@@ -38,7 +38,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "allow",
+						"value": "{{id_token}}",
 						"type": "text"
 					}
 				],
@@ -111,7 +111,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "allow",
+						"value": "{{id_token}}",
 						"type": "text"
 					}
 				],
@@ -163,13 +163,13 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "allow",
+						"value": "{{id_token}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": 1,\n    \"date\": \"{{date}}\"\n}",
+					"raw": "{\n    \"title\": \"{{title}}\",\n    \"date\": \"{{date}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -233,12 +233,12 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"The status code is 403\", function() {",
-							"    pm.response.to.have.status(403);",
+							"pm.test(\"The status code is 401\", function() {",
+							"    pm.response.to.have.status(401);",
 							"});",
 							"",
 							"pm.test(\"Check the response body\", function() {",
-							"    pm.response.to.have.body('{\"Message\":\"User is not authorized to access this resource with an explicit deny\"}');",
+							"    pm.response.to.have.body('{\"message\":\"Unauthorized\"}');",
 							"});"
 						],
 						"type": "text/javascript"

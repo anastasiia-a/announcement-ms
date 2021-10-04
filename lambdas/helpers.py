@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import uuid4
 
 import boto3
-from aws_lambda_powertools.utilities.parser import BaseModel, parse
+from aws_lambda_powertools.utilities.parser import BaseModel, Field, parse
 from exceptions import BlankRequestBody
 
 TABLE_NAME = os.environ["TABLE"]
@@ -18,11 +18,16 @@ logging.basicConfig(
 )
 
 
+def get_new_str_uuid4():
+    """Generate a new uuid in string format."""
+    return str(uuid4())
+
+
 class Announcement(BaseModel):
     """Model for creating announcements
     and parsing the body of the request."""
 
-    uuid: str = f"{uuid4()}"
+    uuid: str = Field(default_factory=get_new_str_uuid4)
     title: str
     date: str
     description: Optional[str]
