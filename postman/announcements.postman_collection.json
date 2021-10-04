@@ -99,7 +99,7 @@
 							"});",
 							"",
 							"pm.test(\"Check the response body\", function() {",
-							"    pm.response.to.have.body('\"Some mandatory body parameters are missing (title, date)!\"');",
+							"    pm.response.to.have.body('\"Body parameters are incorrect\"');",
 							"});"
 						],
 						"type": "text/javascript"
@@ -169,7 +169,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": \"{{title}}\", \n    \"description\": \"{{description}}\",\n    \"date\": \"{{date}}\"\n}",
+					"raw": "{\n    \"title\": 1,\n    \"date\": \"{{date}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

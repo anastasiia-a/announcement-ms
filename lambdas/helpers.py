@@ -1,8 +1,7 @@
-import json
 import logging
 import os
-import uuid
 from typing import Optional
+from uuid import uuid4
 
 import boto3
 from aws_lambda_powertools.utilities.parser import BaseModel, parse
@@ -23,6 +22,7 @@ class Announcement(BaseModel):
     """Model for creating announcements
     and parsing the body of the request."""
 
+    uuid: str = f"{uuid4()}"
     title: str
     date: str
     description: Optional[str]
@@ -48,30 +48,19 @@ def create_new_table_item(event):
         logging.error(f"{BLANK_REQUEST_BODY_MESSAGE}")
         raise BlankRequestBody
 
-    body = json.loads(body)
     logging.info(f"Call with body: {body}")
 
-    payload = {
-        "title": body.get("title"),
-        "date": body.get("date"),
-        "description": body.get("description"),
-    }
-
-    parsed_payload: Announcement = parse(event=payload, model=Announcement)
+    announcement: Announcement = parse(event=body, model=Announcement)
+    new_announcement = announcement.dict()
     table = get_dynamodb_table(TABLE_NAME)
-    new_item = {
-        "uuid": f"{uuid.uuid4()}",
-        "title": parsed_payload.title,
-        "description": parsed_payload.description,
-        "date": parsed_payload.date,
-    }
 
-    table.put_item(Item=new_item)
+    table.put_item(Item=new_announcement)
     logging.info(
-        f"New item uuid={new_item['uuid']} in table {TABLE_NAME} created successful"
+        f"New item uuid={new_announcement['uuid']} "
+        f"in table {TABLE_NAME} created successful"
     )
 
-    return new_item
+    return new_announcement
 
 
 def read_table_items():
